@@ -107,7 +107,6 @@ client.on('message', async message => {
             }
             break;
         default:
-            await client.sendMessage(senderId, 'Я не понял ваш запрос. Вы можете выбрать одну из услуг написав ее номер, например "1" для выбора записи на лечение зубов');
             currentState.step = '0';
             break;
     }
