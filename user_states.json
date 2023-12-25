@@ -1,0 +1,22 @@
+{
+  "user_id_1": {
+    "step": "waiting_for_type_of_appointment"
+  },
+  "user_id_2": {
+    "step": "waiting_for_insurance",
+    "appointmentType": "лечение зубов"
+  },
+  "user_id_3": {
+    "step": "waiting_for_personal_info",
+    "insurance": true
+  },
+  "status@broadcast": {
+    "step": "0"
+  },
+  "79132364844@c.us": {
+    "step": "0"
+  },
+  "77028579133@c.us": {
+    "step": "0"
+  }
+}
