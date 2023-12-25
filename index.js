@@ -48,14 +48,15 @@ client.on('message', async message => {
     const msgContent = message.body.toLowerCase().trim();
     const currentState = userStates[senderId] || {};
 
-    if (!currentState.step) {
+    if (msgContent.includes === 'здравствуйте' || msgContent.includes === 'добрый') {
         // Установка начального шага, ожидание ввода пользователя
         currentState.step = '0';
+        await client.sendMessage(senderId, "Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstomkrg\n С Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на   консультацию по брекетам (исправлению прикуса)\n 6. Запись на   консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою  запись");
     }
     switch (currentState.step) {
         case '0':
             // Пользователь только начал взаимодействовать, бот ожидает выбора опции
-            if (msgContent.includes("1") || msgContent.includes("2") || msgContent.includes("3")) {
+            if (msgContent.includes("1") ||  msgContent.includes("2") || msgContent.includes("3")) {
                 await client.sendMessage(senderId, 'У вас есть страховка? Ответьте "да" или "нет"');
                 currentState.step = 'mediker';
             } 
@@ -81,7 +82,7 @@ client.on('message', async message => {
             }
             else {
                 // Если ввод пользователя не совпадает ни с одной опцией
-                await client.sendMessage(senderId, 'Пожалуйста, выберите напиши ответ одной цифрой, например: 1');
+                
             }
             break;
         case 'mediker':
@@ -90,7 +91,7 @@ client.on('message', async message => {
                 currentState.step = 'fio_i_dr';
             }
             else{
-                await client.sendMessage(senderId, 'Пожалуйста, напишите ваш ответ как "да" или "нет"');
+                
             }
             break;
         case 'rentgen':
@@ -103,7 +104,7 @@ client.on('message', async message => {
                 currentState.step = 'net_3d_rentgena';
             }
             else{
-                await client.sendMessage(senderId, 'Пожалуйста, напишите ваш ответ как "да" или "нет"');
+                
             }
             break;
         default:
