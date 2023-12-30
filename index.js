@@ -210,7 +210,7 @@ async function sendMessage(user) {
     } catch (error) {
       const chatId = `77012927772@c.us`; // WhatsApp ID format
       const message = `Номер обзвон: ${user.phone}\nИмя: ${user.surname} ${user.name}\n Дата записи:${user.date}`; // Message
-      console.error(`Ошибка при отправке сообщения на ${user.phone}:`, error);
+      //console.error(`Ошибка при отправке сообщения на ${user.phone}:`, error);
       return false; // Return false in case of an error
     }
   }
