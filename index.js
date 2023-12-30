@@ -273,7 +273,5 @@ function getScheduleData() {
 
 // Start the server
 app.listen(port, () => {
-    const server = app.address();  // This returns an object with address and port
-    const address = server.address === '::' ? 'localhost' : server.address;  // Convert '::' to 'localhost'
-    console.log(`Server is running on http://${address}:${server.port}`);
-  });
+  console.log(`Server is running on http://localhost:${port}`);
+});
