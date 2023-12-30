@@ -8,7 +8,7 @@ const qrcode = require( 'qrcode-terminal');
 
 const app = express();
 const port = 4477;
-const ip = '185.225.35.50';
+const ip = '192.168.0.102';
 
 // API to update JSON file
 app.use(express.json());
@@ -232,6 +232,11 @@ app.post('/api/updateschedule', async (req, res) => {
     try {
         let incomingData = req.body;
         let existingData = getScheduleData();
+
+        // Parse incoming JSON data (if it's not already parsed)
+        if (typeof incomingData === 'string') {
+            incomingData = JSON.parse(incomingData);
+        }
 
         // Update existing records or add new records
         incomingData.forEach((newRecord) => {
