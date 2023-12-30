@@ -143,7 +143,7 @@ client.on('message', async message => {
 /////////////////////////////
 
 // Schedule the script to run every day at 14:30
-cron.schedule('30 14 * * *', async () => {
+cron.schedule('30 8 * * *', async () => {
     const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
     const appointments = JSON.parse(scheduleData);
 
@@ -171,7 +171,7 @@ function isSameDay(date1, date2) {
         date1.getDate() === date2.getDate();
 }
 
-cron.schedule('0 6-21 * * *', async () => {
+cron.schedule('0 0-15 * * *', async () => {
     const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
     const appointments = JSON.parse(scheduleData);
 
