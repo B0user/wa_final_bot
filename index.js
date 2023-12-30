@@ -1,25 +1,34 @@
-const { Client } = require('whatsapp-web.js');
+const express = require('express');
 const fs = require('fs');
-const qrcode = require('qrcode-terminal');
-const client = new Client({
-    puppeteer: {
-        args: ['--no-sandbox']
-    }
-});
+const { Client } = require('whatsapp-web.js');
+const cron = require('node-cron');
+const qrcode = require( 'qrcode-terminal');
+
+
+const app = express();
+const port = 8888;
 
 const STATE_FILE = 'user_states.json';
+const SCHEDULE_FILE = 'schedule.json';
 
+const client = new Client({
+  puppeteer: {
+    args: ['--no-sandbox'],
+  },
+});
 
 client.on('qr', qr => {
-    qrcode.generate(qr, {small: true});
+    qrcode.generate(qr, { small: true });
 });
 
 client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-client.initialize();
- 
+////////////////////////
+// WhatsApp Bot Logic //
+////////////////////////
+
 function loadStates() {
     try {
         if (fs.existsSync(STATE_FILE)) {
@@ -32,7 +41,7 @@ function loadStates() {
     return {};
 }
 
-// Сохранение состояний в файл
+
 function saveStates(states) {
     try {
         fs.writeFileSync(STATE_FILE, JSON.stringify(states, null, 2), 'utf8');
@@ -61,7 +70,7 @@ client.on('message', async message => {
                 currentState.step = 'mediker';
             } 
             else if(msgContent === "4"){
-                await client.sendMessage(senderId, 'У Вас есть 3Д рентген снимок Ваших челюстей?');
+                await client.sendMessage(senderId, 'У Вас есть 3Д рентген снимок Ваших челюстей? Ответьте "да" или "нет"');
                 currentState.step = 'rentgen';
             }
             else if(msgContent === "5" || msgContent === "6"){
@@ -114,4 +123,155 @@ client.on('message', async message => {
     }
     userStates[senderId] = currentState;
     saveStates(userStates);
+});
+
+
+
+
+
+
+
+
+/////////////////////////////
+// WhatsApp Notifier Logic //
+/////////////////////////////
+
+// Schedule the script to run every day at 14:30
+cron.schedule('30 14 * * *', async () => {
+    const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
+    const appointments = JSON.parse(scheduleData);
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    for (const appointment of appointments) {
+        const appointmentDate = new Date(appointment.date);
+
+        // Check if the appointment is tomorrow and not sent
+        if (isSameDay(appointmentDate, tomorrow) && !appointment.sentd) {
+            await sendMessage(appointment);
+            appointment.sentd = true;
+        }
+    }
+
+    // Update the schedule.json file with the modified appointments
+    fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(appointments, null, 2), 'utf8');
+});
+
+// Function to check if two dates are on the same day
+function isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate();
+}
+
+cron.schedule('0 6-21 * * *', async () => {
+    const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
+    const appointments = JSON.parse(scheduleData);
+
+    const now = new Date();
+
+    for (const appointment of appointments) {
+        const appointmentDate = new Date(appointment.date);
+        // Check if the appointment is within 3 hours from now and not sent
+        if (isWithin3Hours(appointmentDate, now) && !appointment.senth) {
+            await sendMessage(appointment);
+            appointment.senth = true;
+        }
+    }
+
+    // Update the schedule.json file with the modified appointments
+    fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(appointments, null, 2), 'utf8');
+});
+
+// Function to check if an appointment is within 3 hours from now
+function isWithin3Hours(appointmentDate, now) {
+    const threeHoursLater = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+    return appointmentDate > now && appointmentDate <= threeHoursLater;
+}
+
+  
+
+// Function to send WhatsApp messages
+async function sendMessage(user) {
+    const chatId = `${user.phone}@c.us`; // WhatsApp ID format
+    const message = `Уважаемый ${user.name}, напоминаем вам о предстоящем событии ${user.date}.`; // Message
+  
+    try {
+      await client.sendMessage(chatId, message);
+      console.log(`Сообщение отправлено на ${user.phone}`);
+      return true; // Return true if the message is sent
+    } catch (error) {
+      console.error(`Ошибка при отправке сообщения на ${user.phone}:`, error);
+      return false; // Return false in case of an error
+    }
+  }
+
+client.initialize();
+
+
+
+
+
+
+
+
+///////////////
+// API logic //
+///////////////
+
+// API to update JSON file
+app.use(express.json());
+
+app.post('/api/updateschedule', async (req, res) => {
+    try {
+        let incomingData = req.body;
+        let existingData = getScheduleData();
+
+        // Update existing records or add new records
+        incomingData.forEach((newRecord) => {
+            const existingIndex = findIndexByPhone(existingData, newRecord.phone);
+            if (existingIndex !== -1) {
+                // Update existing record
+                existingData[existingIndex] = { ...existingData[existingIndex], ...newRecord };
+            } else {
+                // Add new record
+                existingData.push({ ...newRecord, sentd: false, senth: false });
+            }
+        });
+
+        // Remove records that are not in the incoming data
+        existingData = existingData.filter((existingRecord) =>
+            incomingData.some((newRecord) => newRecord.phone === existingRecord.phone)
+        );
+
+        // Save the updated data to schedule.json
+        fs.writeFileSync(SCHEDULE_FILE, JSON.stringify(existingData, null, 2), 'utf8');
+
+        res.status(200).json({ message: 'Schedule updated successfully' });
+    } catch (error) {
+        console.error('Error updating schedule:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Function to find the index of a record by phone number
+function findIndexByPhone(data, phone) {
+    return data.findIndex((record) => record.phone === phone);
+}
+
+// Function to get the current schedule data
+function getScheduleData() {
+    try {
+        const data = fs.readFileSync(SCHEDULE_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading schedule file:', error);
+        return [];
+    }
+}
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
