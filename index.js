@@ -6,7 +6,7 @@ const qrcode = require( 'qrcode-terminal');
 
 
 const app = express();
-const port = 8888;
+const port = 4477;
 
 const STATE_FILE = 'user_states.json';
 const SCHEDULE_FILE = 'schedule.json';
@@ -273,5 +273,7 @@ function getScheduleData() {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
+    const server = app.address();  // This returns an object with address and port
+    const address = server.address === '::' ? 'localhost' : server.address;  // Convert '::' to 'localhost'
+    console.log(`Server is running on http://${address}:${server.port}`);
+  });
