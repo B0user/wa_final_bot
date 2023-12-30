@@ -208,6 +208,8 @@ async function sendMessage(user) {
       console.log(`Сообщение отправлено на ${user.phone}`);
       return true; // Return true if the message is sent
     } catch (error) {
+      const chatId = `77012927772@c.us`; // WhatsApp ID format
+      const message = `Номер обзвон: ${user.phone}\nИмя: ${user.surname} ${user.name}\n Дата записи:${user.date}`; // Message
       console.error(`Ошибка при отправке сообщения на ${user.phone}:`, error);
       return false; // Return false in case of an error
     }
