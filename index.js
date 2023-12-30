@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const cors = require('cors');
 const { Client } = require('whatsapp-web.js');
 const cron = require('node-cron');
 const qrcode = require( 'qrcode-terminal');
@@ -7,6 +8,11 @@ const qrcode = require( 'qrcode-terminal');
 
 const app = express();
 const port = 4477;
+const ip = '192.168.0.102';
+
+// API to update JSON file
+app.use(express.json());
+app.use(cors());
 
 const STATE_FILE = 'user_states.json';
 const SCHEDULE_FILE = 'schedule.json';
@@ -220,8 +226,7 @@ client.initialize();
 // API logic //
 ///////////////
 
-// API to update JSON file
-app.use(express.json());
+
 
 app.post('/api/updateschedule', async (req, res) => {
     try {
@@ -272,6 +277,6 @@ function getScheduleData() {
 }
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(port, ip, () => {
+  console.log(`Server is running on http://${ip}:${port}`);
 });
