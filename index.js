@@ -8,7 +8,7 @@ const qrcode = require( 'qrcode-terminal');
 
 const app = express();
 const port = 4477;
-const ip = '185.225.35.50';
+const ip = '192.168.0.102';
 
 // API to update JSON file
 app.use(express.json());
@@ -143,7 +143,7 @@ client.on('message', async message => {
 /////////////////////////////
 
 // Schedule the script to run every day at 14:30
-cron.schedule('30 8 * * *', async () => {
+cron.schedule('30 14 * * *', async () => {
     const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
     const appointments = JSON.parse(scheduleData);
 
@@ -171,7 +171,7 @@ function isSameDay(date1, date2) {
         date1.getDate() === date2.getDate();
 }
 
-cron.schedule('0 0-15 * * *', async () => {
+cron.schedule('* 6-21 * * *', async () => {
     const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
     const appointments = JSON.parse(scheduleData);
 
@@ -201,16 +201,23 @@ function isWithin3Hours(appointmentDate, now) {
 // Function to send WhatsApp messages
 async function sendMessage(user) {
     const chatId = `${user.phone}@c.us`; // WhatsApp ID format
-    const message = `Уважаемый ${user.name}, напоминаем вам о предстоящем событии ${user.date}.`; // Message
+    const formattedDate = new Date(user.date).toLocaleString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+    });
+    const message = `Уважаемый ${user.name}, напоминаем вам о записи в стоматологии Идеал ${formattedDate}.`; // Message
   
     try {
       await client.sendMessage(chatId, message);
       console.log(`Сообщение отправлено на ${user.phone}`);
       return true; // Return true if the message is sent
     } catch (error) {
-      const chatId = `77012927772@c.us`; // WhatsApp ID format
-      const message = `Номер обзвон: ${user.phone}\nИмя: ${user.surname} ${user.name}\n Дата записи:${user.date}`; // Message
-      //console.error(`Ошибка при отправке сообщения на ${user.phone}:`, error);
+      await client.sendMessage(`77012927772@c.us`, `Номер обзвон: \n${user.phone}\nИмя: ${user.surname} ${user.name} \nДата записи: ${formattedDate}`);
+      console.log(`Сообщение отправлено Админу`);
       return false; // Return false in case of an error
     }
   }
