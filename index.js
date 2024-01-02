@@ -171,7 +171,7 @@ function isSameDay(date1, date2) {
         date1.getDate() === date2.getDate();
 }
 
-cron.schedule('* 6-21 * * *', async () => {
+cron.schedule('0 6-21 * * *', async () => {
     const scheduleData = fs.readFileSync(SCHEDULE_FILE, 'utf8');
     const appointments = JSON.parse(scheduleData);
 
@@ -213,10 +213,11 @@ async function sendMessage(user) {
   
     try {
       await client.sendMessage(chatId, message);
+      await client.sendMessage(`77012927772@c.us`, `(Сообщение отправлено) \nИмя: ${user.surname} ${user.name} \nДата записи: ${formattedDate}`);
       console.log(`Сообщение отправлено на ${user.phone}`);
       return true; // Return true if the message is sent
     } catch (error) {
-      await client.sendMessage(`77012927772@c.us`, `Номер обзвон: \n${user.phone}\nИмя: ${user.surname} ${user.name} \nДата записи: ${formattedDate}`);
+      await client.sendMessage(`77012927772@c.us`, `(Сообщение не отправлено) \nНомер телефона: \n${user.phone}\nИмя: ${user.surname} ${user.name} \nДата записи: ${formattedDate}`);
       console.log(`Сообщение отправлено Админу`);
       return false; // Return false in case of an error
     }
