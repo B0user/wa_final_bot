@@ -63,7 +63,7 @@ client.on('message', async message => {
     const msgContent = message.body.toLowerCase().trim();
     const currentState = userStates[senderId] || {};
 
-    if (msgContent.includes('здравствуйте') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('салам')) {
+    if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('салам')) {
         // Установка начального шага, ожидание ввода пользователя
         currentState.step = '0';
         await client.sendMessage(senderId, "Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstom.krg\n \n С Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на консультацию по брекетам (исправлению прикуса)\n 6. Запись на консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою запись\n Введите ответ цифрой от 1 до 9");
