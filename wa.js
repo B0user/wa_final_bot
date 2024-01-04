@@ -34,10 +34,10 @@ client.on('message', async message => {
     const fetchedMessageFromBot = await chat.fetchMessages({"limit": 1, "fromMe": true})
 
     console.log(fetchedMessageFromBot[0]);
-    console.log(fetchedMessageFromBot[0].body.toLowerCase());
+    console.log(fetchedMessageFromBot[0]?.body?.toLowerCase());
     console.log(msgContent);
 
-    const lastBotMsg = fetchedMessageFromBot[0].body.toLowerCase();
+    const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
 
     if (lastBotMsg === "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9") {
       if (msgContent === "1" ||  msgContent === "2" || msgContent === "3") {
