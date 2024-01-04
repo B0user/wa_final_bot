@@ -110,27 +110,26 @@ function isSameDay(date1, date2) {
         date1.getDate() === date2.getDate();
 }
 
-cron.schedule('* * * * *', async () => {
-    systemizeAppointments();
-    // const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
-    // const notificationDays = JSON.parse(notificationData);
+cron.schedule('* 7-21 * * *', async () => {
+    const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
+    const notificationDays = JSON.parse(notificationData);
 
-    // const now = new Date();
+    const now = new Date();
 
-    // for (const day of notificationDays) {
-    //     for (const appointment of day.appointments) {
-    //         const appointmentDate = new Date(appointment.date);
+    for (const day of notificationDays) {
+        for (const appointment of day.appointments) {
+            const appointmentDate = new Date(appointment.date);
 
-    //         // Check if the appointment is within 3 hours from now and not sent
-    //         if (isWithin3Hours(appointmentDate, now) && !appointment.senth) {
-    //             await sendMessage(appointment);
-    //             appointment.senth = true;
-    //         }
-    //     }
-    // }
+            // Check if the appointment is within 3 hours from now and not sent
+            if (isWithin3Hours(appointmentDate, now) && !appointment.senth) {
+                await sendMessage(appointment);
+                appointment.senth = true;
+            }
+        }
+    }
 
-    // // Update the notification.json file with the modified appointments
-    // fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(notificationDays, null, 2), 'utf8');
+    // Update the notification.json file with the modified appointments
+    fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(notificationDays, null, 2), 'utf8');
 });
 
 // Function to check if an appointment is within 3 hours from now
