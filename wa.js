@@ -33,9 +33,9 @@ client.on('message', async message => {
 
     const fetchedMessageFromBot = await chat.fetchMessages({"limit": 1, "fromMe": true})
 
-    console.log(fetchedMessageFromBot[0]);
-    console.log(fetchedMessageFromBot[0]?.body?.toLowerCase());
-    console.log(msgContent);
+    // console.log(fetchedMessageFromBot[0]);
+    // console.log(fetchedMessageFromBot[0]?.body?.toLowerCase());
+    // console.log(msgContent);
 
     const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
 
@@ -96,7 +96,7 @@ app.use(cors());
 
 // Function to send a message to a single recipient
 async function sendMessage(info) {
-    const admin_chatId = `77028579133@c.us`; 
+    const admin_chatId = `77012927772@c.us`; 
     const chatId = `${info.phone}@c.us`; // WhatsApp ID format
   
     try {
