@@ -97,8 +97,8 @@ cron.schedule('* * * * *', async () => {
     const messageData = {
         phone: '77028579133',
         text: 'test',
-        success: 'test to admin',
-        error: 'error to admin',
+        success: 'test message',
+        error: 'error message',
     };
 
     try {
