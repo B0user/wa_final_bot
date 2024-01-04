@@ -6,7 +6,7 @@ const cron = require('node-cron');
 
 const app = express();
 const port = 4477;
-const ip = "192.168.0.102";
+const ip = "185.225.35.50";
 
 // API to update JSON file
 app.use(express.json());
