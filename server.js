@@ -26,8 +26,29 @@ function systemizeAppointments() {
         // Read the schedule.json file
         const scheduleData = JSON.parse(fs.readFileSync(SCHEDULE_FILE, 'utf8'));
 
+        // Filter out all but the earliest appointment for each phone number per day
+        const earliestAppointments = scheduleData.reduce((acc, appointment) => {
+            const date = new Date(appointment.date);
+            const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            const phoneKey = appointment.phone;
+
+            // Create a unique key for each day and phone number
+            const uniqueKey = `${dayKey}-${phoneKey}`;
+
+            if (!acc[uniqueKey] || new Date(acc[uniqueKey].date) > date) {
+                // Clone the appointment object excluding 'sentd' and 'senth'
+                const { sentd, senth, ...appointmentData } = appointment;
+                acc[uniqueKey] = appointmentData;
+            }
+
+            return acc;
+        }, {});
+
+        // Extract the filtered appointments
+        const filteredAppointments = Object.values(earliestAppointments);
+
         // Group appointments by day
-        const groupedAppointments = scheduleData.reduce((acc, appointment) => {
+        const groupedAppointments = filteredAppointments.reduce((acc, appointment) => {
             const date = new Date(appointment.date);
             const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
@@ -53,8 +74,6 @@ function systemizeAppointments() {
         console.error('Error systemizing appointments:', error);
     }
 }
-
-
 
 
 /////////////////////////////
@@ -92,23 +111,7 @@ function isSameDay(date1, date2) {
 }
 
 cron.schedule('* * * * *', async () => {
-    // systemizeAppointments();
-    const apiEndpoint = 'http://localhost:9990/api/sendone'; 
-    const messageData = {
-        phone: '77028579133',
-        text: 'test',
-        success: 'test message',
-        error: 'error message',
-    };
-
-    try {
-        const response = await axios.post(apiEndpoint, messageData);
-        console.log(`Сообщение успешно: ${response}`);
-        return true; // Return true if the message is sent
-    } catch (error) {
-        console.error(`Ошибка при отправке сообщения: ${error.message}`);
-        return false; // Return false in case of an error
-    }
+    systemizeAppointments();
     // const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
     // const notificationDays = JSON.parse(notificationData);
 
