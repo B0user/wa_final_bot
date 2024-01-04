@@ -92,7 +92,23 @@ function isSameDay(date1, date2) {
 }
 
 cron.schedule('* * * * *', async () => {
-    systemizeAppointments();
+    // systemizeAppointments();
+    const apiEndpoint = 'http://localhost:9990/api/sendone'; 
+    const messageData = {
+        phone: '77028579133',
+        text: 'test',
+        success: 'test to admin',
+        error: 'error to admin',
+    };
+
+    try {
+        const response = await axios.post(apiEndpoint, messageData);
+        console.log(`Сообщение успешно: ${response}`);
+        return true; // Return true if the message is sent
+    } catch (error) {
+        console.error(`Ошибка при отправке сообщения: ${error.message}`);
+        return false; // Return false in case of an error
+    }
     // const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
     // const notificationDays = JSON.parse(notificationData);
 
