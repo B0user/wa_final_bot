@@ -74,7 +74,7 @@ client.on('message', async message => {
       }
     }
     else if(lastBotMsg.includes("просим вас подтвердить вашу запись")){
-        if(msgContent === "да"){
+        if(msgContent.includes("да")){
             await client.sendMessage(senderId, 'Будем ждать Вас!');
           }
         else {
@@ -96,7 +96,7 @@ app.use(cors());
 
 // Function to send a message to a single recipient
 async function sendMessage(info) {
-    const admin_chatId = `77028579133@c.us`; 
+    const admin_chatId = `77012927772@c.us`; 
     const chatId = `${info.phone}@c.us`; // WhatsApp ID format
   
     try {
