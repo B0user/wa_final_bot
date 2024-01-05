@@ -96,7 +96,7 @@ app.use(cors());
 
 // Function to send a message to a single recipient
 async function sendMessage(info) {
-    const admin_chatId = `77012927772@c.us`; 
+    const admin_chatId = `77028579133@c.us`; 
     const chatId = `${info.phone}@c.us`; // WhatsApp ID format
   
     try {
@@ -114,21 +114,49 @@ async function sendMessage(info) {
 
   // API endpoint for sending a message to a single recipient
 app.post('/api/sendone', async (req, res) => {
-    const info = req.body;
+  const info = req.body;
+
+  if (!info || !info.phone || !info.text || !info.success || !info.error) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const result = await sendMessage(info);
+
+  if (result) {
+    return res.json({ success: 'Message sent successfully' });
+  } else {
+    return res.status(500).json({ error: 'Failed to send message' });
+  }
+});
   
-    if (!info || !info.phone || !info.text || !info.success || !info.error) {
-      return res.status(400).json({ error: 'Invalid request body' });
-    }
-  
-    const result = await sendMessage(info);
-  
-    if (result) {
-      return res.json({ success: 'Message sent successfully' });
-    } else {
-      return res.status(500).json({ error: 'Failed to send message' });
-    }
-  });
-  
+// API endpoint for getting the lastBotMsg by chatID
+app.get('/api/getlastmessages/:phone', async (req, res) => {
+  const phone = req.params.phone;
+
+  if (!phone) {
+    return res.status(400).json({ error: 'Invalid request parameters' });
+  }
+
+  try {
+    // Find the chat by phone number
+    const chat = await client.getChatById(`${phone}@c.us`);
+    if (!chat) return res.status(400).json({ error: 'Invalid request parameters' });
+
+    // Fetch the last 10 messages from the chat
+    const fetchedMessages = await chat.fetchMessages({ limit: 10, fromMe: true });
+
+    // Convert the last 10 messages to the specified JSON format
+    const last10Messages = fetchedMessages.map(message => ({
+      messageDate: new Date(message.timestamp*1000).toLocaleString(),
+      messageText: message.body || '' 
+    }));
+
+    return res.json({ last10Messages });
+  } catch (error) {
+    console.error('Error fetching last 10 messages:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 

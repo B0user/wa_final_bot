@@ -79,6 +79,45 @@ function systemizeAppointments() {
 /////////////////////////////
 // WhatsApp Notifier Logic //
 /////////////////////////////
+function composeMessage(data) {
+    const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+    });
+
+    const messageData = {
+        phone: data.phone,
+        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас запись на приём ${formattedDate}. \nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \nС уважением, Стоматология Идеал.`,
+        success: `(Сообщение отправлено) \nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
+        error: `(Сообщение не отправлено) \nНомер телефона: \n${data.phone}\nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
+    };
+
+    return messageData;
+}
+
+function composeMessageTomorrow(data) {
+    const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+    });
+
+    const messageData = {
+        phone: data.phone,
+        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас завтра запись на приём ${formattedDate}. \nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \nС уважением, Стоматология Идеал.`,
+        success: `(Сообщение отправлено) \nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
+        error: `(Сообщение не отправлено) \nНомер телефона: \n${data.phone}\nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
+    };
+
+    return messageData;
+}
 
 cron.schedule('30 14 * * *', async () => {
     const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
@@ -93,8 +132,8 @@ cron.schedule('30 14 * * *', async () => {
 
             // Check if the appointment is tomorrow and not sent
             if (isSameDay(appointmentDate, tomorrow) && !appointment.sentd) {
-                await sendMessage(appointment);
-                appointment.sentd = true;
+                const messageData = composeMessageTomorrow(appointment);
+                await sendMessage(messageData);
             }
         }
     }
@@ -119,11 +158,13 @@ cron.schedule('* 7-21 * * *', async () => {
     for (const day of notificationDays) {
         for (const appointment of day.appointments) {
             const appointmentDate = new Date(appointment.date);
-
-            // Check if the appointment is within 3 hours from now and not sent
-            if (isWithin3Hours(appointmentDate, now) && !appointment.senth) {
-                await sendMessage(appointment);
-                appointment.senth = true;
+            // Check if the appointment is within 2:05 - 1:55 hours from now and not sent
+            if (isWithinRangeBeforeAppointment(appointmentDate, now)) {
+                const messageData = composeMessage(appointment);
+                const isSent = await isSentAlready(messageData, appointment.phone);
+                if (isSent){
+                    await sendMessage(messageData);
+                }
             }
         }
     }
@@ -131,33 +172,35 @@ cron.schedule('* 7-21 * * *', async () => {
     // Update the notification.json file with the modified appointments
     fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(notificationDays, null, 2), 'utf8');
 });
+// Function to check if an appointment is within 1 hour 55 minutes to 2 hours 5 minutes from now
+function isWithinRangeBeforeAppointment(appointmentDate, now) {
+    const lowRange = new Date(now.getTime() + 115 * 60 * 1000);
+    const highRange = new Date(now.getTime() + 125 * 60 * 1000);
 
-// Function to check if an appointment is within 3 hours from now
-function isWithin3Hours(appointmentDate, now) {
-    const threeHoursLater = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-    return appointmentDate > now && appointmentDate <= threeHoursLater;
+    return appointmentDate > lowRange && appointmentDate < highRange;
 }
-
+// Function to check whether we already sent notification earlier
+async function isSentAlready(messageData, phone) {
+    const text = messageData.text;
   
+    try {
+      // Make an Axios request to get the last messages
+      const response = await axios.get(`http://localhost:9990/api/getlastmessages/${phone}`);
+      const lastMessages = response.data.last10Messages;
+  
+      // Check if the text exists in any of the last messages
+      return lastMessages.some(message => message.messageText === text);
+    } catch (error) {
+      console.error('Error checking if message is sent already:', error);
+      // Return false in case of an error
+      return false;
+    }
+  }
+
 
 // Function to send WhatsApp messages using API
-async function sendMessage(data) {
+async function sendMessage(messageData) {
     const apiEndpoint = 'http://localhost:9990/api/sendone'; // API endpoint
-    const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false,
-    });
-
-    const messageData = {
-        phone: data.phone,
-        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас запись на приём ${formattedDate}. \nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \nС уважением, Стоматология Идеал.`,
-        success: `(Сообщение отправлено) \nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
-        error: `(Сообщение не отправлено) \nНомер телефона: \n${data.phone}\nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
-    };
 
     try {
         const response = await axios.post(apiEndpoint, messageData);
