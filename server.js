@@ -161,9 +161,13 @@ cron.schedule('* 7-21 * * *', async () => {
             // Check if the appointment is within 2:05 - 1:55 hours from now and not sent
             if (isWithinRangeBeforeAppointment(appointmentDate, now)) {
                 const messageData = composeMessage(appointment);
-                const isSent = await isSentAlready(messageData, appointment.phone);
-                if (isSent){
-                    await sendMessage(messageData);
+                
+                const isSentAdminError = await isSentAlready(messageData.error, "77028579133");
+                if (!isSentAdminError){
+                    const isSent = await isSentAlready(messageData.text, appointment.phone);
+                    if (!isSent){
+                        await sendMessage(messageData);
+                    }
                 }
             }
         }
@@ -180,9 +184,7 @@ function isWithinRangeBeforeAppointment(appointmentDate, now) {
     return appointmentDate > lowRange && appointmentDate < highRange;
 }
 // Function to check whether we already sent notification earlier
-async function isSentAlready(messageData, phone) {
-    const text = messageData.text;
-  
+async function isSentAlready(text, phone) {
     try {
       // Make an Axios request to get the last messages
       const response = await axios.get(`http://localhost:9990/api/getlastmessages/${phone}`);
@@ -191,7 +193,7 @@ async function isSentAlready(messageData, phone) {
       // Check if the text exists in any of the last messages
       return lastMessages.some(message => message.messageText === text);
     } catch (error) {
-      console.error('Error checking if message is sent already:', error);
+    //   console.error('Error checking if message is sent already:', error);
       // Return false in case of an error
       return false;
     }
@@ -207,7 +209,7 @@ async function sendMessage(messageData) {
         console.log(`Сообщение успешно: ${response}`);
         return true; // Return true if the message is sent
     } catch (error) {
-        console.error(`Ошибка при отправке сообщения: ${error.message}`);
+        // console.error(`Ошибка при отправке сообщения: ${error.message}`);
         return false; // Return false in case of an error
     }
 }

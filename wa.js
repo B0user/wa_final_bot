@@ -22,6 +22,25 @@ client.on('ready', () => {
 });
 
 
+async function wasSpecificMessageSentToday(client, chatId, searchText) {
+  const chat = await client.getChatById(chatId);
+
+  const fetchedMessages = await chat.fetchMessages({ limit: 50, fromMe: true });
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+
+  return fetchedMessages.some(message => {
+      const messageDate = new Date(message.timestamp * 1000);
+      messageDate.setHours(0, 0, 0, 0); 
+
+      return messageDate.getTime() === today.getTime() && 
+             message.body && 
+             message.body.toLowerCase().trim() === searchText.toLowerCase();
+  });
+}
+
+
 client.on('message', async message => {
     const senderId = message.from;
     const msgContent = message.body.toLowerCase().trim();
@@ -38,6 +57,7 @@ client.on('message', async message => {
     // console.log(msgContent);
 
     const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
+    const wasSentToday = await wasSpecificMessageSentToday(client, senderId, "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9");
 
     if (lastBotMsg === "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9") {
       if (msgContent === "1" ||  msgContent === "2" || msgContent === "3") {
@@ -77,12 +97,9 @@ client.on('message', async message => {
         if(msgContent.includes("да")){
             await client.sendMessage(senderId, 'Будем ждать Вас!');
           }
-        else {
-            return;
-        }
     }
     else{
-        if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('салам')) {
+        if (!wasSentToday && (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('салам'))) {
             await client.sendMessage(senderId, 'Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstom.krg\n \nС Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на консультацию по брекетам (исправлению прикуса)\n 6. Запись на консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою запись\n\nВведите ответ цифрой от 1 до 9');
         }
     }
@@ -143,7 +160,7 @@ app.get('/api/getlastmessages/:phone', async (req, res) => {
     if (!chat) return res.status(400).json({ error: 'Invalid request parameters' });
 
     // Fetch the last 10 messages from the chat
-    const fetchedMessages = await chat.fetchMessages({ limit: 10, fromMe: true });
+    const fetchedMessages = await chat.fetchMessages({ limit:200, fromMe: true });
 
     // Convert the last 10 messages to the specified JSON format
     const last10Messages = fetchedMessages.map(message => ({
@@ -153,8 +170,8 @@ app.get('/api/getlastmessages/:phone', async (req, res) => {
 
     return res.json({ last10Messages });
   } catch (error) {
-    console.error('Error fetching last 10 messages:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    // console.error('Error fetching last 10 messages:');
+    return res.status(400).json({ error: 'Incorrect phone' });
   }
 });
 
