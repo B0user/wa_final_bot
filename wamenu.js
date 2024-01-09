@@ -28,12 +28,23 @@ async function handleMenu(client, message) {
 
     const fetchedMessageFromBot = await chat.fetchMessages({"limit": 1, "fromMe": true})
 
+    const menuMessageText = 'Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstom.krg\n \nС Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на консультацию по брекетам (исправлению прикуса)\n 6. Запись на консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою запись\n\nВведите ответ цифрой от 1 до 9';
+
     // console.log(fetchedMessageFromBot[0]);
     // console.log(fetchedMessageFromBot[0]?.body?.toLowerCase());
     // console.log(msgContent);
 
     const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
     const wasSentToday = await wasSpecificMessageSentToday(client, senderId, "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9");
+
+    // Если вообще нет наших сообщений, то дальше код не вести вообще
+    if (!lastBotMsg){
+        if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе')) {
+            await client.sendMessage(senderId, menuMessageText);
+        }
+        return; // все.
+    }
+
 
     if (lastBotMsg === "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9") {
       if (msgContent === "1" ||  msgContent === "2" || msgContent === "3") {
@@ -70,11 +81,11 @@ async function handleMenu(client, message) {
       }
     }
     else{
-        if(!lastBotMsg.trim().includes("здравствуйте")){
-        if (!wasSentToday && (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе'))) {
-            await client.sendMessage(senderId, 'Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstom.krg\n \nС Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на консультацию по брекетам (исправлению прикуса)\n 6. Запись на консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою запись\n\nВведите ответ цифрой от 1 до 9');
+        if(!lastBotMsg?.trim()?.includes("здравствуйте")){ // можно вопросы убрать по сути, но всякий оставил
+            if (!wasSentToday && (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе'))) {
+                await client.sendMessage(senderId, menuMessageText);
+            }
         }
-    }
     }
 
 }
