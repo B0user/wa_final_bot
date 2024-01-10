@@ -81,7 +81,7 @@ async function handleMenu(client, message) {
       }
     }
     else{
-        if(!lastBotMsg?.trim()?.includes("здравствуйте")){ // можно вопросы убрать по сути, но всякий оставил
+        if(!lastBotMsg.trim().includes("здравствуйте")){ 
             if (!wasSentToday && (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе'))) {
                 await client.sendMessage(senderId, menuMessageText);
             }
