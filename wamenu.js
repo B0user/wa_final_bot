@@ -39,7 +39,7 @@ async function handleMenu(client, message) {
 
     // Если вообще нет наших сообщений, то дальше код не вести вообще
     if (!lastBotMsg){
-        if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе')) {
+        if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('доброго')) {
             await client.sendMessage(senderId, menuMessageText);
         }
         return; // все.
