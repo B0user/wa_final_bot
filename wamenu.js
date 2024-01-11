@@ -42,7 +42,7 @@ async function handleMenu(client, message) {
     if (!lastBotMsg){
       if (isGreetings(msgContent)) {
         await client.sendMessage(senderId, menuMessageText);
-        console.log("No last bot message");
+        console.log(`No last bot message: ${senderId}`);
       }
       return; // все.
     }
@@ -85,7 +85,7 @@ async function handleMenu(client, message) {
     else{
         if(isGreetings(msgContent) && !lastBotMsg.trim().includes("здравствуйте") && !wasSentToday){ 
           await client.sendMessage(senderId, menuMessageText);
-          console.log("Greeted, we did not initiated, today first time");
+          console.log(`Greeted, we did not initiated, today first time: ${senderId}`);
         }
     }
 
