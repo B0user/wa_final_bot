@@ -35,18 +35,16 @@ async function handleMenu(client, message) {
     // console.log(msgContent);
 
     const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
-    const wasSentToday = await wasSpecificMessageSentToday(client, senderId, "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9");
+    const wasSentToday = await wasSpecificMessageSentToday(client, senderId, menuMessageText.toLowerCase());
 
     // Если вообще нет наших сообщений, то дальше код не вести вообще
     if (!lastBotMsg){
-        if (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('доброго')) {
-            await client.sendMessage(senderId, menuMessageText);
-        }
+        await client.sendMessage(senderId, menuMessageText);
         return; // все.
     }
 
 
-    if (lastBotMsg === "здравствуйте! вас рада приветствовать стоматология идеал!\n наш сайт: ideal-stom.kz\n наш инстаграм: @idealstom.krg\n \nс вами на связи робот, просим вас сообщить, что вас интересует: \n 1. запись на лечение зуба/ов\n 2. запись на чистку зубов, лечение десен\n 3. запись на удаление зуба/ов\n 4. запись на консультацию по имплантам\n 5. запись на консультацию по брекетам (исправлению прикуса)\n 6. запись на консультацию по протезированию\n 7. хочу задать вопрос\n 8. прошу перенести мою запись\n 9. прошу отменить мою запись\n\nвведите ответ цифрой от 1 до 9") {
+    if (lastBotMsg === menuMessageText.toLowerCase()) {
       if (msgContent === "1" ||  msgContent === "2" || msgContent === "3") {
         await client.sendMessage(senderId, 'У Вас есть страховка Медикер (на работе выдавали карту Медикер)? Ответьте "да" или "нет"');
       }
@@ -81,13 +79,17 @@ async function handleMenu(client, message) {
       }
     }
     else{
-        if(!lastBotMsg.trim().includes("здравствуйте")){ 
-            if (!wasSentToday && (msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе'))) {
+        if(!lastBotMsg.trim().includes("здравствуйте")){ // if we greeted as last message today
+            if (!wasSentToday && isGreetings(msgContent)) {
                 await client.sendMessage(senderId, menuMessageText);
             }
         }
     }
 
+}
+
+function isGreetings(msgContent) {
+  return msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('доброго');
 }
 
 module.exports = { handleMenu, wasSpecificMessageSentToday };
