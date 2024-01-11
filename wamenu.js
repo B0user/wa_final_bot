@@ -17,6 +17,7 @@ async function wasSpecificMessageSentToday(client, chatId, searchText) {
     });
   }
 
+
 async function handleMenu(client, message) {
     const senderId = message.from;
     const msgContent = message.body.toLowerCase().trim();
@@ -39,8 +40,11 @@ async function handleMenu(client, message) {
 
     // Если вообще нет наших сообщений, то дальше код не вести вообще
     if (!lastBotMsg){
+      if (isGreetings(msgContent)) {
         await client.sendMessage(senderId, menuMessageText);
-        return; // все.
+        console.log("No last bot message");
+      }
+      return; // все.
     }
 
 
@@ -79,10 +83,9 @@ async function handleMenu(client, message) {
       }
     }
     else{
-        if(!lastBotMsg.trim().includes("здравствуйте")){ // if we greeted as last message today
-            if (!wasSentToday && isGreetings(msgContent)) {
-                await client.sendMessage(senderId, menuMessageText);
-            }
+        if(isGreetings(msgContent) && !lastBotMsg.trim().includes("здравствуйте") && !wasSentToday){ 
+          await client.sendMessage(senderId, menuMessageText);
+          console.log("Greeted, we did not initiated, today first time");
         }
     }
 
