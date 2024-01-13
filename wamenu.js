@@ -38,11 +38,14 @@ async function handleMenu(client, message) {
     const lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
     const wasSentToday = await wasSpecificMessageSentToday(client, senderId, menuMessageText.toLowerCase());
 
+    console.log(`lastbBotMsg: ${lastBotMsg}\nwasSentToday: ${wasSentToday}\nmsgContent: ${msgContent}\nisGreetings: ${isGreetings(msgContent)}`)
+
     // Если вообще нет наших сообщений, то дальше код не вести вообще
     if (!lastBotMsg){
+      console.log(`No last bot message: ${senderId} \n${msgContent}\n${isGreetings(msgContent)}`);
       if (isGreetings(msgContent)) {
         await client.sendMessage(senderId, menuMessageText);
-        console.log(`No last bot message: ${senderId}`);
+        console.log(`Greeted last bot message: ${senderId}`);
       }
       return; // все.
     }
