@@ -36,19 +36,6 @@ async function handleMenu(client, message) {
     // console.log(`lastbBotMsg: ${lastBotMsg}\nwasSentToday: ${wasSentToday}\nmsgContent: ${msgContent}\nisGreetings: ${isGreetings(msgContent)}`)
     
     // Если вообще нет наших сообщений, то дальше код не вести вообще
-    if (!lastBotMsg){
-      if (!msgContent){
-        await client.sendMessage(senderId, menuMessageText);
-        console.log('empty msgContent');
-      }
-      if (isGreetings(msgContent)) {
-        await client.sendMessage(senderId, menuMessageText);
-        console.log(`Greeted last bot message: ${senderId}`);
-      }
-      return; // все.
-    }
-
-
     if (lastBotMsg === menuMessageText.toLowerCase()) {
       if (msgContent === "1" ||  msgContent === "2" || msgContent === "3") {
         await client.sendMessage(senderId, 'У Вас есть страховка Медикер (на работе выдавали карту Медикер)? Ответьте "да" или "нет"');
@@ -84,6 +71,16 @@ async function handleMenu(client, message) {
       }
     }
     else{
+        if (!lastBotMsg){
+          if (!msgContent){
+            await client.sendMessage(senderId, menuMessageText);
+            console.log(`Empty msgContent ${senderId}\nLastBotMSG: ${lastBotMsg}\n-----------`);
+          }
+          if (isGreetings(msgContent)) {
+            await client.sendMessage(senderId, menuMessageText);
+            console.log(`Greeted last bot message: ${senderId}`);
+          }
+        }
         if(isGreetings(msgContent) && !lastBotMsg.trim().includes("здравствуйте") && !wasSentToday){ 
           await client.sendMessage(senderId, menuMessageText);
           console.log(`Greeted, we did not initiated, today first time: ${senderId}`);
