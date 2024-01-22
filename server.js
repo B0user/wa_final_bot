@@ -23,6 +23,10 @@ const NOTIFICATION_FILE = 'notification.json';
 
 function systemizeAppointments() {
     try {
+        
+        // Get the current date and time
+        const currentTime = new Date();
+        const formattedTime = currentTime.toLocaleString();
         // Read the schedule.json file
         const scheduleData = JSON.parse(fs.readFileSync(SCHEDULE_FILE, 'utf8'));
 
@@ -69,9 +73,10 @@ function systemizeAppointments() {
         // Save the organized appointments to notification.json
         fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(organizedAppointments, null, 2), 'utf8');
 
-        console.log('Appointments systemized and saved successfully.');
+
+        console.log(`Appointments systemized and saved successfully. Time: ${formattedTime}`);
     } catch (error) {
-        console.error('Error systemizing appointments:', error);
+        console.error(`Error systemizing appointments (Time: ${formattedTime}) -> `, error);
     }
 }
 
@@ -202,11 +207,14 @@ async function isSentAlready(text, phone) {
 
 // Function to send WhatsApp messages using API
 async function sendMessage(messageData) {
+    // Get the current date and time
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleString();
     const apiEndpoint = 'http://localhost:9990/api/sendone'; // API endpoint
 
     try {
         const response = await axios.post(apiEndpoint, messageData);
-        console.log(`Сообщение успешно: ${response}`);
+        console.log(`Сообщение успешно -> ${messageData?.phone}. Time: ${formattedTime}`);
         return true; // Return true if the message is sent
     } catch (error) {
         // console.error(`Ошибка при отправке сообщения: ${error.message}`);
