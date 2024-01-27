@@ -96,13 +96,14 @@ function composeMessage(data) {
 
     const messageData = {
         phone: data.phone,
-        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас запись на приём ${formattedDate}. \nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \nС уважением, Стоматология Идеал.`,
+        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас запись на приём ${formattedDate}. \n\nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \n\nПросим Вас прийти без группы поддержки, кроме случаев сопровождения несовершеннолетних детей. \n\nС уважением, Стоматология Идеал.`,
         success: `(Сообщение отправлено) \nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
         error: `(Сообщение не отправлено) \nНомер телефона: \n${data.phone}\nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
     };
 
     return messageData;
 }
+
 
 function composeMessageTomorrow(data) {
     const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
@@ -116,7 +117,7 @@ function composeMessageTomorrow(data) {
 
     const messageData = {
         phone: data.phone,
-        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас завтра запись на приём ${formattedDate}. \nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \nС уважением, Стоматология Идеал.`,
+        text: `Здравствуйте, ${data.surname} ${data.name}! \nУ Вас завтра запись на приём ${formattedDate}. \n\nПросим Вас подтвердить Вашу запись. Ответьте «да», «нет», «прошу перенести мою запись». \n\nПросим Вас прийти без группы поддержки, кроме случаев сопровождения несовершеннолетних детей. \n\nС уважением, Стоматология Идеал.`,
         success: `(Сообщение отправлено) \nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
         error: `(Сообщение не отправлено) \nНомер телефона: \n${data.phone}\nИмя: ${data.surname} ${data.name} \nДата записи: ${formattedDate}`,
     };

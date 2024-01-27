@@ -31,18 +31,16 @@ async function handleMenu(client, message) {
     if (chat.isGroup) {
       return;
     }
-    if (!msgContent) {
-      // Logs to figure it out
-      console.log(`400: EmptyMessage from ${senderId}\ncontent: ${message}`);
-      // What to do when empty? - nothing
-      return;
-    }
 
     // Get Last Message From Us
-    let fetchedMessageFromBot, lastBotMsg;
+    let fetchedMessageFromBot, fetchedMessageFromClient, lastBotMsgContent, lastBotMsg, lastClientMsg;
     try {
-      fetchedMessageFromBot = await chat.fetchMessages({"limit": 1, "fromMe": true})
-      lastBotMsg = fetchedMessageFromBot[0]?.body?.toLowerCase();
+      fetchedMessageFromBot = await chat.fetchMessages({"limit": 1, "fromMe": true});
+      lastBotMsg = fetchedMessageFromBot[0];
+      lastBotMsgContent = lastBotMsg?.body?.toLowerCase();
+
+      fetchedMessageFromClient = await chat.fetchMessages({"limit": 1, "fromMe": false});
+      lastClientMsg = fetchedMessageFromClient[0];
     }
     catch(err){
       console.log(`500: Error while fetching lastBotMsg :${err}`);
@@ -52,7 +50,7 @@ async function handleMenu(client, message) {
     const wasSentToday = await wasSpecificMessageSentToday(client, senderId, menuMessageText.toLowerCase());
 
     // THE MENU FLOW
-    switch(lastBotMsg){
+    switch(lastBotMsgContent){
       case menuMessageText.toLowerCase(): // Flow from the menu
         switch(msgContent) {
           case "1":
@@ -105,17 +103,36 @@ async function handleMenu(client, message) {
         break;
     
       default: // Other Flows
+        if(!lastClientMsg) {
+          console.log(`500: NO CHAT: from ${chat?.id?.user}`);
+          
+        }
+        if (!msgContent) {
+          // crit point?
+          
+          if (!lastBotMsg){ // new chat, no messages from us yet
+            await client.sendMessage(senderId, menuMessageText); // we replied with menu
+          }
+          // Logs to figure it out
+          console.log(`400: EmptyMessage: from ${chat?.id?.user}\nLast Client Message JSON: ${lastClientMsg.hasMedia ? "media" : JSON.stringify(lastClientMsg)}`);
+          // What to do when empty? - nothing
+          return;
+        }
+
         if(isGreetings(msgContent)){
-          console.log(`${senderId} sent greetings`);
+          console.log(`${chat?.id?.user} sent greetings`);
           if (!lastBotMsg){ // new chat, no messages from us yet
             await client.sendMessage(senderId, menuMessageText); // we replied with menu
           }
           else {
-            if (!wasSentToday && !isGreetings(lastBotMsg.trim())){ //today no menu, we did not greeted
+            if (!wasSentToday && !isGreetings(lastBotMsgContent.trim())){ //today no menu, we did not greeted
               await client.sendMessage(senderId, menuMessageText); // we replied with menu
             }
           }
         }
+
+        
+        
         break;
     }
 
