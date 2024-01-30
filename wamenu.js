@@ -110,11 +110,11 @@ async function handleMenu(client, message) {
         if (!msgContent) {
           // crit point?
           
-          if (!lastBotMsg){ // new chat, no messages from us yet
-            await client.sendMessage(senderId, menuMessageText); // we replied with menu
-          }
+          // if (!lastBotMsg){ // new chat, no messages from us yet
+          //   await client.sendMessage(senderId, menuMessageText); // we replied with menu
+          // }
           // Logs to figure it out
-          console.log(`400: EmptyMessage: from ${chat?.id?.user}\nLast Client Message JSON: ${lastClientMsg.hasMedia ? "media" : JSON.stringify(lastClientMsg)}`);
+          console.log(`400: EmptyMessage: from ${chat?.id?.user}`);
           // What to do when empty? - nothing
           return;
         }
@@ -141,7 +141,7 @@ async function handleMenu(client, message) {
 
 function isGreetings(msgContent) {
   if (!msgContent) return false;
-  return msgContent.includes('здравствуйте') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('доброго');
+  return msgContent.includes('здравствуйте') || msgContent.includes('здраствуйте') || msgContent.includes('здраствуй') || msgContent.includes('здравствуй') || msgContent.includes('привет') || msgContent.includes('добрый') || msgContent.includes('доброе') || msgContent.includes('доброго');
 }
 
 module.exports = { handleMenu, wasSpecificMessageSentToday };
