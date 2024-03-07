@@ -125,7 +125,7 @@ function composeMessageTomorrow(data) {
     return messageData;
 }
 
-cron.schedule('30 13 * * *', async () => {
+cron.schedule('30 14 * * *', async () => {
     const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
     const notificationDays = JSON.parse(notificationData);
 
