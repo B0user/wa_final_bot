@@ -142,17 +142,14 @@ function composeBDayList(data) {
 
 /// CRON ///
 
-cron.schedule('0 12 * * *', async () => {
-    const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
-    const bdayinfo = JSON.parse(bdaydata);
+// cron.schedule('0 12 * * *', async () => {
+//     const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
+//     const bdayinfo = JSON.parse(bdaydata);
 
-    let messageData = composeBDayList(bdayinfo);
+//     let messageData = composeBDayList(bdayinfo);
 
-    await sendMessageAdmin(messageData);
-
-    // Update the notification.json file with the modified appointments
-    fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(notificationDays, null, 2), 'utf8');
-});
+//     await sendMessageAdmin(messageData);
+// });
 
 
 
