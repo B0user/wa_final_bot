@@ -127,18 +127,12 @@ function composeMessageTomorrow(data) {
 }
 
 function composeBDayList(data) {
-    const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false,
-    });
+    let text = `День рождения (дд.мм): ${data[0].bday}`;
+
+    for (const person of data) { text += `\n---------------\n${person.name} ${person.surname} (${person.age})\n${person.phone}`; }
 
     const messageData = {
-        phone: data.phone,
-        text: ``,
+        text: text,
         success: `(success)`,
         error: `(error)`,
     };
@@ -148,7 +142,7 @@ function composeBDayList(data) {
 
 /// CRON ///
 
-cron.schedule('30 12 * * *', async () => {
+cron.schedule('0 12 * * *', async () => {
     const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
     const bdayinfo = JSON.parse(bdaydata);
 

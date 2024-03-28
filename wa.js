@@ -46,6 +46,17 @@ async function sendMessage(info) {
     }
   }
 
+async function sendMessageAdmin(info) {
+  const admin_chatId = `77012927772@c.us`;
+  try {
+    await client.sendMessage(admin_chatId, info.text)
+    console.log(`Message sent to ADMIN`);
+    return true; // Return true if the message is sent
+  } catch (error) {
+    await client.sendMessage(admin_chatId, info.error)
+    return false; // Return false in case of an error
+  }
+}
 
 
   // API endpoint for sending a message to a single recipient
@@ -62,6 +73,23 @@ app.post('/api/sendone', async (req, res) => {
     return res.json({ success: 'Message sent successfully' });
   } else {
     return res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// API endpoint for sending a message to a single recipient
+app.post('/api/sendadmin', async (req, res) => {
+  const info = req.body;
+
+  if (!info || !info.text || !info.success || !info.error) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const result = await sendMessageAdmin(info);
+
+  if (result) {
+    return res.json({ success: 'Message ADMIN sent successfully' });
+  } else {
+    return res.status(500).json({ error: 'Failed to send ADMIN message' });
   }
 });
   
