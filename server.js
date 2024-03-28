@@ -16,6 +16,7 @@ app.use(cors());
 
 const SCHEDULE_FILE = 'schedule.json';
 const NOTIFICATION_FILE = 'notification.json';
+const BDAYS_FILE = 'bdays.json';
 
 
 
@@ -125,6 +126,42 @@ function composeMessageTomorrow(data) {
     return messageData;
 }
 
+function composeBDayList(data) {
+    const formattedDate = new Date(data.date).toLocaleString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+    });
+
+    const messageData = {
+        phone: data.phone,
+        text: ``,
+        success: `(success)`,
+        error: `(error)`,
+    };
+
+    return messageData;
+}
+
+/// CRON ///
+
+cron.schedule('30 12 * * *', async () => {
+    const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
+    const bdayinfo = JSON.parse(bdaydata);
+
+    let messageData = composeBDayList(bdayinfo);
+
+    await sendMessageAdmin(messageData);
+
+    // Update the notification.json file with the modified appointments
+    fs.writeFileSync(NOTIFICATION_FILE, JSON.stringify(notificationDays, null, 2), 'utf8');
+});
+
+
+
 cron.schedule('30 13 * * *', async () => {
     const notificationData = fs.readFileSync(NOTIFICATION_FILE, 'utf8');
     const notificationDays = JSON.parse(notificationData);
@@ -223,6 +260,22 @@ async function sendMessage(messageData) {
     }
 }
 
+async function sendMessageAdmin(messageData) {
+    // Get the current date and time
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleString();
+    const apiEndpoint = 'http://localhost:9990/api/sendadmin'; // API admin endpoint
+
+    try {
+        await axios.post(apiEndpoint, messageData);
+        console.log(`Сообщение Admin успешно -> Time: ${formattedTime}`);
+        return true; // Return true if the message is sent
+    } catch (error) {
+        // console.error(`Ошибка при отправке сообщения: ${error.message}`);
+        return false; // Return false in case of an error
+    }
+}
+
 
 
 
@@ -250,6 +303,24 @@ app.post('/api/updateschedule', (req, res) => {
         res.status(200).json({ message: 'Schedule updated successfully' });
     } catch (error) {
         console.error('Error updating schedule:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/updatebdaylist', (req, res) => {
+    try {
+        let incomingData = req.body;
+        // Parse incoming JSON data (if it's not already parsed)
+        if (typeof incomingData === 'string') {
+            incomingData = JSON.parse(incomingData);
+        }
+        // Save the incoming data to schedule.json
+        fs.writeFileSync(BDAYS_FILE, JSON.stringify(incomingData, null, 2), 'utf8');
+        systemizeAppointments();
+        
+        res.status(200).json({ message: 'Bday List updated successfully' });
+    } catch (error) {
+        console.error('Error updating bday list:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
