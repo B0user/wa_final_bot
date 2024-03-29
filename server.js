@@ -142,14 +142,14 @@ function composeBDayList(data) {
 
 /// CRON ///
 
-// cron.schedule('0 12 * * *', async () => {
-//     const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
-//     const bdayinfo = JSON.parse(bdaydata);
+cron.schedule('0 12 * * *', async () => {
+    const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
+    const bdayinfo = JSON.parse(bdaydata);
 
-//     let messageData = composeBDayList(bdayinfo);
+    let messageData = composeBDayList(bdayinfo);
 
-//     await sendMessageAdmin(messageData);
-// });
+    await sendMessageAdmin(messageData);
+});
 
 
 
