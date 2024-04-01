@@ -17,6 +17,7 @@ app.use(cors());
 const SCHEDULE_FILE = 'schedule.json';
 const NOTIFICATION_FILE = 'notification.json';
 const BDAYS_FILE = 'bdays.json';
+// const CONTROL_FILE = 'log.json';
 
 
 
@@ -127,10 +128,14 @@ function composeMessageTomorrow(data) {
 }
 
 function composeBDayList(data) {
-    let text = `День рождения (дд.мм): ${data[0].bday}`;
-
-    for (const person of data) { text += `\n---------------\n${person.name} ${person.surname} (${person.age})\n${person.phone}`; }
-
+    
+    let text;
+    if (data){
+        text = `День рождения (дд.мм): ${data[0].bday}`;
+        for (const person of data) { text += `\n---------------\n${person.name} ${person.surname} (${person.age})\n${person.phone}`; }
+    }
+    else text = "На следующей неделе нет дней рождения.";
+    
     const messageData = {
         text: text,
         success: `(success)`,
@@ -142,7 +147,7 @@ function composeBDayList(data) {
 
 /// CRON ///
 
-cron.schedule('0 12 * * *', async () => {
+cron.schedule('0 9 * * *', async () => {
     const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
     const bdayinfo = JSON.parse(bdaydata);
 
