@@ -147,7 +147,7 @@ function composeBDayList(data) {
 
 /// CRON ///
 
-cron.schedule('0 9 * * *', async () => {
+cron.schedule('0 10 * * *', async () => {
     const bdaydata = fs.readFileSync(BDAYS_FILE, 'utf8');
     const bdayinfo = JSON.parse(bdaydata);
 
