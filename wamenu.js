@@ -27,8 +27,11 @@ async function handleMenu(client, message) {
     // BASIC SETTINGS
     const menuMessageText = 'Здравствуйте! Вас рада приветствовать стоматология ИДЕАЛ!\n Наш сайт: ideal-stom.kz\n Наш инстаграм: @idealstom.krg\n \nС Вами на связи робот, просим Вас сообщить, что Вас интересует: \n 1. Запись на лечение зуба/ов\n 2. Запись на чистку зубов, лечение десен\n 3. Запись на удаление зуба/ов\n 4. Запись на консультацию по имплантам\n 5. Запись на консультацию по брекетам (исправлению прикуса)\n 6. Запись на консультацию по протезированию\n 7. Хочу задать вопрос\n 8. Прошу перенести мою запись\n 9. Прошу отменить мою запись\n\nВведите ответ цифрой от 1 до 9';
 
+    const author = chat.lastMessage.author;
+
+    console.log(author);
     // CHECK CORRECTNESS OF INPUT
-    if (chat.isGroup) {
+    if (chat.isGroup || author) {
       return;
     }
 
